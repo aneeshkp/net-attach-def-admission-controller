@@ -29,17 +29,17 @@ var (
 			Help: "Metric to count network attachment definition cr.",
 		})
 	//NetDefAttachInstanceCounter ...  Total no of network attachment definition instance in the cluster
-	NetDefAttachInstanceCounter = prometheus.NewGauge(
+	NetDefAttachInstanceCounter = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "network_attachment_definition_instance_total",
 			Help: "Metric to get total instance using network attachment definition.",
-		})
+		}, []string{"networks"})
 	//NetDefAttachEnabledInstanceUp  ... check if any instance with netdefattach config enabled
-	NetDefAttachEnabledInstanceUp = prometheus.NewGauge(
+	NetDefAttachEnabledInstanceUp = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "network_attachment_definition_enabled_instance_up",
 			Help: "Metric to identify clusters with network attachment definition enabled instances.",
-		})
+		}, []string{"networks"})
 )
 
 // UpdateNetAttachDefCRMetrics ...
@@ -48,17 +48,19 @@ func UpdateNetAttachDefCRMetrics(value float64) {
 }
 
 //UpdateNetDefAttachInstanceMetrics ...
-func UpdateNetDefAttachInstanceMetrics(value float64) {
-	NetDefAttachInstanceCounter.Add(value)
-	netDefInstanceEnabledCount += value
+func UpdateNetDefAttachInstanceMetrics(tp string, val float64) {
+	NetDefAttachInstanceCounter.With(prometheus.Labels{
+		"networks": tp}).Add(val)
+	netDefInstanceEnabledCount += val
 	if netDefInstanceEnabledCount > 0.0 {
-		SetNetDefAttachEnabledInstanceUp(1.0)
+		SetNetDefAttachEnabledInstanceUp(tp, 1.0)
 	} else {
-		SetNetDefAttachEnabledInstanceUp(0.0)
+		SetNetDefAttachEnabledInstanceUp(tp, 0.0)
 	}
 }
 
 //SetNetDefAttachEnabledInstanceUp ...
-func SetNetDefAttachEnabledInstanceUp(value float64) {
-	NetDefAttachEnabledInstanceUp.Set(value)
+func SetNetDefAttachEnabledInstanceUp(tp string, val float64) {
+	NetDefAttachEnabledInstanceUp.With(prometheus.Labels{
+		"networks": tp}).Set(val)
 }

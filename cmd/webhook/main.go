@@ -29,14 +29,11 @@ import (
 	"github.com/K8sNetworkPlumbingWG/net-attach-def-admission-controller/pkg/controller"
 	"github.com/K8sNetworkPlumbingWG/net-attach-def-admission-controller/pkg/localmetrics"
 	"github.com/K8sNetworkPlumbingWG/net-attach-def-admission-controller/pkg/webhook"
-	clientset "github.com/K8sNetworkPlumbingWG/network-attachment-definition-client/pkg/client/clientset/versioned"
 	"github.com/golang/glog"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	utilwait "k8s.io/apimachinery/pkg/util/wait"
-	"k8s.io/client-go/rest"
 )
 
 func main() {
@@ -71,10 +68,8 @@ func main() {
 
 	/* init API client */
 	webhook.SetupInClusterClient()
-
+	// start metrics sever
 	startHTTPMetricServer(*metricsAddress)
-
-	initNetDefCount()
 
 	//Start watching for pod creations
 	go controller.StartWatching()
@@ -120,26 +115,6 @@ func main() {
 		time.Sleep(1 * time.Second)
 	}
 
-}
-
-//keeps the count accurate when the pod gets created
-func initNetDefCount() {
-	// intilaize netdef metrics values.
-	config, err := rest.InClusterConfig()
-	if err != nil {
-		glog.Fatal(err)
-	}
-	//get custom clientset for net def, if error ignore
-	netdefclientset, err := clientset.NewForConfig(config)
-	if err != nil {
-		glog.Fatalf("There was error accessing client set for net def %v", err)
-	}
-	list, err := netdefclientset.K8sCniCncfIoV1().NetworkAttachmentDefinitions("").List(metav1.ListOptions{})
-	if err == nil {
-		localmetrics.UpdateNetAttachDefCRMetrics(float64(len(list.Items)))
-	} else {
-		glog.Infof("Error getting initial net def count %v", err)
-	}
 }
 
 func startHTTPMetricServer(metricsAddress string) {

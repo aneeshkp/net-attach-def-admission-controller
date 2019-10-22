@@ -7,6 +7,7 @@ require (
 	github.com/containernetworking/cni v0.7.0-alpha1
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/intel/multus-cni v0.0.0-20180818113950-86af6ab69fe2
+	github.com/k8snetworkplumbingwg/network-attachment-definition-client v0.0.0-20190930093859-eaeabbaba5be
 	github.com/onsi/ginkgo v1.10.1
 	github.com/onsi/gomega v1.7.0
 	github.com/pkg/errors v0.8.1

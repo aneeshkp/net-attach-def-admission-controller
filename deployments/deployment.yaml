@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
       - name: net-attach-def-admission-controller
-        image: nfvpe/net-attach-def-admission-controller:snapshot
+        image: quay.io/aneeshkp/net-attach-def-admission-controller:v68
         command:
         - ./bin/webhook
         args:
